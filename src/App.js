@@ -1,78 +1,63 @@
 import React, { Component } from 'react'
-import TodoInput from './components/TodoInput';
-import TodoList from './components/TodoList';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { v1 as uuid } from 'uuid';
+import NavBar from './components/Nav';
+import SearchArea from './components/SearchArea';
+import MovieList from './components/MovieList';
+import Pagination from  './components/Pagination';
+import MovieInfo from  './components/MovieInfo';
+
+import './index.css';
 
 export default class App  extends Component {
-  state={
-    items:[],
-    id: uuid(),
-    item:'',
-    editItem:false
-  }
-  handleChange = e => {
-    this.setState({
-      item: e.target.value
-    });
-  }
-  handleSubmit = (e) => {
-    e.preventDefault();
-
-    const newItem = {
-      id: this.state.id,
-      title: this.state.item,  
+  constructor(){
+    super()
+    this.state = {
+      movies: [],
+      searchTerm: '',
+      totalResults: 0,
+      currentPage: 1,
+      currentMovie: null
     }
-    // console.log(newItem);
-  
+    this.apiKey = process.env.REACT_APP_API
+  }
 
-    const updatedItem = [...this.state.items,newItem];
-    this.setState({
-      items: updatedItem,
-      item: '',
-      id: uuid(),
-      editItem: false 
+ handleSubmit = (e) => {
+   e.preventDefault();
+    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${this.apiKey}&query=${this.state.searchTerm}`)
+    .then(data => data.json())
+    .then(data => {
+      console.log(data.results); 
+       this.setState({movies: [...data.results], totalResults:data.total_results})
     })
   }
-  clearList = () => {
-    this.setState({
-      items:[]
+  
+  handleChange = (e) => {
+    this.setState({ searchTerm: e.target.value })
+  }
+
+  nextPage = (pageNumber) => {
+    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${this.apiKey}&query=${this.state.searchTerm}&page=${pageNumber}`)
+    .then(data => data.json()) 
+    .then(data => {
+      this.setState({movies: [...data.results], currentPage:pageNumber })
     })
   }
-  handleDelete = (id) => {
-    const filteredItems = this.state.items.filter(item => 
-      item.id !== id);
-      this.setState({
-        items: filteredItems
-      })
+  viewMovieInfo = (id) => {
+   const filteredMovie = this.state.movies.filter(movie => movie.id ===id)
+    const newCurrentMovie = filteredMovie.length > 0 ? filteredMovie[0] : null
+    this.setState({currentMovie: newCurrentMovie})
   }
-  handleEdit = id => {
-    const filteredItems = this.state.items.filter(item => 
-      item.id !== id);
-      const selectedItem = this.state.items.find(item => item.id ===id);
-      this.setState({
-        items: filteredItems,
-        item:selectedItem.title,
-        editItem:true,
-        id:id
-      })
+
+  closedMovieinfo = () => {
+    this.setState({currentMovie:null})
   }
   render() {
+    const numberPages = Math.floor(this.state.totalResults / 20)
       return (
-         <div className="container">
-           <div className="col-10 mx-auto col-md-8 mt-4">
-             <h3 className="text-capitalize text-center">todo input</h3>
-             <TodoInput item={this.state.item}
-              handleChange={this.handleChange} 
-              handleSubmit={this.handleSubmit} 
-              editItem={this.state.editItem}
-              />
-             <TodoList items={this.state.items}
-              clearList={this.clearList} 
-              handleDelete={this.handleDelete}
-              handleEdit={this.handleEdit}/>
-          
-           </div>
+         <div>
+           <NavBar />  
+            {this.state.currentMovie == null ? <div><SearchArea handleSubmit={this.handleSubmit} handleChange={this.handleChange} searchTerm = {this.state.searchTerm}/><MovieList viewMovieInfo={this.viewMovieInfo} movies={this.state.movies}/></div> : <MovieInfo currentMovie={this.state.currentMovie} closedMovieInfo={this.closedMovieInfo}/>}
+            { this.state.totalResults > 20  && this.state.currentMovie == null? <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> : ''}
          </div>
       )
   }
