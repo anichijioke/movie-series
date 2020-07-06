@@ -1,7 +1,7 @@
 import React from 'react'
 import Movie from './Movie';
 
-function movieList({movies, viewMovieInfo, movieId}) {
+function movieList({movies, viewMovieInfo}) {
     return (
         <div className="container">
             <div className="row">

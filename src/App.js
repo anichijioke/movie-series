@@ -48,15 +48,16 @@ export default class App  extends Component {
     this.setState({currentMovie: newCurrentMovie})
   }
 
-  closedMovieinfo = () => {
-    this.setState({currentMovie:null})
+  closedMovieInfo = () => {
+    this.setState({currentMovie: null})
   }
   render() {
     const numberPages = Math.floor(this.state.totalResults / 20)
       return (
          <div>
            <NavBar />  
-            {this.state.currentMovie == null ? <div><SearchArea handleSubmit={this.handleSubmit} handleChange={this.handleChange} searchTerm = {this.state.searchTerm}/><MovieList viewMovieInfo={this.viewMovieInfo} movies={this.state.movies}/></div> : <MovieInfo currentMovie={this.state.currentMovie} closedMovieInfo={this.closedMovieInfo}/>}
+            {this.state.currentMovie == null ? <div><SearchArea handleSubmit={this.handleSubmit} handleChange={this.handleChange} searchTerm = {this.state.searchTerm}/>
+            <MovieList viewMovieInfo={this.viewMovieInfo} movies={this.state.movies}/></div> : <MovieInfo currentMovie={this.state.currentMovie} closedMovieInfo={this.closedMovieInfo}/>}
             { this.state.totalResults > 20  && this.state.currentMovie == null? <Pagination pages={numberPages} nextPage={this.nextPage} currentPage={this.state.currentPage}/> : ''}
          </div>
       )

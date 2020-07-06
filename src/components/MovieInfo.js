@@ -6,7 +6,7 @@ const MovieInfo = ({closedMovieInfo, currentMovie,})=> {
             <div className='row' onClick={closedMovieInfo} style={{cursor:'pointer', padding:50}}> 
                 <i className='fas fa-arrow-left'></i>
                 <span style={{marginLeft:10}}>Go back</span>
-            </div>
+            </div>   
             <div className='row'>
                 <div className='col s12 m4'>
                     {  
